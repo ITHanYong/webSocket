@@ -52,7 +52,7 @@
     _webSocket = nil;
     
     
-    NSString *url = [NSString stringWithFormat:@"wss://%@%@",@"url",liveId];
+    NSString *url = [NSString stringWithFormat:@"%@", @"ws://121.40.165.18:8800"];
     self.webSocket = [[SRWebSocket alloc] initWithURL:[NSURL URLWithString:url]];
     self.webSocket.delegate = self;
     [self.webSocket open];
