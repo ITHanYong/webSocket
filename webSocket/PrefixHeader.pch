@@ -33,7 +33,7 @@ view.layer.masksToBounds = YES;
 #define RGBAOF(rgbValue, alphas)   [UIColor colorWithRed:((float)((rgbValue & 0xFF0000) >> 16))/255.0 green:((float)((rgbValue & 0xFF00) >> 8))/255.0 blue:((float)(rgbValue & 0xFF))/255.0 alpha:alphas]
 
 /** 消息子类型（subType） */
-typedef NS_ENUM(NSInteger, NDSubMsgType) {
+typedef NS_ENUM(NSInteger, HYSubMsgType) {
     HYSubMsgType_Unknown            = 0,
     /////////// 直播间事件 ///////////
     HYSubMsgType_Share              = 1,   // 当用户直播间里发起分享时

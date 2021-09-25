@@ -14,7 +14,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface HYMsgModel : NSObject
 
-@property (nonatomic, assign) NDSubMsgType subType;
+@property (nonatomic, assign) HYSubMsgType subType;
 
 @property (nonatomic, strong) HYUserModel *user;
 /// 直播间文本内容

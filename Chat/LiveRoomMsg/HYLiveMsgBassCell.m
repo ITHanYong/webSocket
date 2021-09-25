@@ -32,7 +32,7 @@
 }
 
 
-+ (HYLiveMsgBassCell *)initMsgCell:(UITableView *)tableView cellForType:(NDSubMsgType)type indexPath:(NSIndexPath *)indexPath {
++ (HYLiveMsgBassCell *)initMsgCell:(UITableView *)tableView cellForType:(HYSubMsgType)type indexPath:(NSIndexPath *)indexPath {
     NSString *identityName = [NSString stringWithFormat:@"%@_%ld", [self msgCellIdentifier], type];
     [tableView registerClass:[self class] forCellReuseIdentifier:identityName];
     
@@ -47,7 +47,7 @@
 + (HYLiveMsgBassCell *)tableView:(UITableView *)tableView cellForMsg:(HYMsgModel *)msg indexPath:(NSIndexPath *)indexPath delegate:(id<MsgCellGesDelegate>)delegate {
 
     HYLiveMsgBassCell *cell = nil;
-    NDSubMsgType type = msg.subType;
+    HYSubMsgType type = msg.subType;
     
     switch (type) {
 //        case NDSubMsgType_TimeMsg:

@@ -1,9 +1,8 @@
 //
 //  HYWebSocketManager.h
-//  CaiFuProHS
+//  webSocket
 //
-//  Created by HanYong on 2021/5/25.
-//  Copyright © 2021 CaiFuZhengQuan. All rights reserved.
+//  Created by HanYong on 2021/9/25.
 //
 
 #import <Foundation/Foundation.h>

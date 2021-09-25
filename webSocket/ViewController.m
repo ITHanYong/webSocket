@@ -13,10 +13,12 @@
 #import "HYMsgListTableView.h"
 #import "HYDebugToolManager.h"
 
+#import "HYWebSocketManager.h"
+
 // 每一秒发送多少条消息
 #define MAXCOUNT  30
 
-@interface ViewController ()<UITextFieldDelegate, RoomMsgListDelegate>
+@interface ViewController ()<UITextFieldDelegate, RoomMsgListDelegate, WebSocketManagerDelegate>
 {
     NSArray<NSString *> *_conmentAry;
     NSArray<NSString *> *_nameAry;
@@ -28,6 +30,12 @@
 @end
 
 @implementation ViewController
+
+-(void)viewDidDisappear:(BOOL)animated{
+    [super viewDidDisappear:animated];
+    //关闭长连接
+    [[HYWebSocketManager shared] RMWebSocketClose];
+}
 
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -51,14 +59,54 @@
     self.msgTableView.frame = CGRectMake(8, 100, MsgTableViewWidth, MsgTableViewHeight);
     //self.msgTableView.backgroundColor = [UIColor whiteColor];
     
+    [HYWebSocketManager shared].delegate = self;
+    [[HYWebSocketManager shared] connectServer:@""];
+}
+
+- (void)clear:(UIButton *)sender {
+    [self.msgTableView reset];
     
-    //[self creatTestIMMsg:NDSubMsgType_Announcement];
+    if (self.msgTableView.reloadType == HYReloadLiveMsgRoom_Time) {
+        [self.msgTableView startTimer];
+    }
+}
+
+// 开始模拟发送消息
+- (void)start:(UIButton *)sender {
+    if (_timer == nil) {
+        EWWeakSelf
+        dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+        _timer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, queue);
+        dispatch_source_set_timer(_timer, dispatch_walltime(NULL, 0), 1.0*NSEC_PER_SEC/MAXCOUNT, 0);
+        dispatch_source_set_event_handler(_timer, ^{
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [weakSelf creatTestIMMsg:arc4random() % 7];
+            });
+        });
+        dispatch_resume(_timer);
+    }
+}
+
+
+// 点击return手动发送文本类型消息
+- (BOOL)textFieldShouldReturn:(UITextField *)textField {
     
-    [self start:nil];
+    [self creatTestIMMsg:HYSubMsgType_Comment];
+    
+    return YES;
+}
+
+#pragma mark - WebSocketManagerDelegate
+-(void)webSocketManagerDidReceiveMessageWithString:(NSString *)string{
+    NSData *data = [string dataUsingEncoding:NSUTF8StringEncoding];
+    NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:data options:NSUTF8StringEncoding error:nil];
+    
+    //消息
+    [self creatTestIMMsg:HYSubMsgType_Comment];
 }
 
 // 随机生成不同类型消息
-- (void)creatTestIMMsg:(NDSubMsgType)subType {
+- (void)creatTestIMMsg:(HYSubMsgType)subType {
     HYMsgModel *msgModel = [HYMsgModel new];
     if (subType == 0) {
         msgModel.subType = arc4random() % 7;
@@ -121,42 +169,7 @@
     }
     // 生成富文本模型
     [msgModel initMsgAttribute];
-    
-    
     [self.msgTableView addNewMsg:msgModel];
-}
-
-- (void)clear:(UIButton *)sender {
-    [self.msgTableView reset];
-    
-    if (self.msgTableView.reloadType == HYReloadLiveMsgRoom_Time) {
-        [self.msgTableView startTimer];
-    }
-}
-
-// 开始模拟发送消息
-- (void)start:(UIButton *)sender {
-    if (_timer == nil) {
-        EWWeakSelf
-        dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
-        _timer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, queue);
-        dispatch_source_set_timer(_timer, dispatch_walltime(NULL, 0), 1.0*NSEC_PER_SEC/MAXCOUNT, 0);
-        dispatch_source_set_event_handler(_timer, ^{
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [weakSelf creatTestIMMsg:arc4random() % 7];
-            });
-        });
-        dispatch_resume(_timer);
-    }
-}
-
-
-// 点击return手动发送文本类型消息
-- (BOOL)textFieldShouldReturn:(UITextField *)textField {
-    
-    [self creatTestIMMsg:HYSubMsgType_Comment];
-    
-    return YES;
 }
 
 - (HYMsgListTableView *)msgTableView {
